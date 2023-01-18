@@ -1,4 +1,6 @@
 const { User, Order, Cart, Item } = require('../models')
+const Validator = require('fastest-validator')
+const v = new Validator()
 
 exports.getUser = async (req, res) => {
     try {
@@ -57,26 +59,53 @@ exports.addUser = async (req, res) => {
     try {
         const {fullName,email, password, address, phone, role} = req.body
         const checkUser = await User.findOne({where: {email}})
+        const schema = {
+            email: {type: "email", optional: false},
+            password: {type: "string", min: 5, max: 255, optional: false}
+        }
+        
 
         if(checkUser){
+            // validate Email
             if(checkUser.dataValues.email == email){
-                res.status(401).json({
+                    res.status(401).json({
                     message: 'Email is Alredy Exist',
                     data: {}
                 })
             }else{
-                const result = await User.create({fullName,email, password, address, phone, role})
-                res.status(201).json({
-                message: 'Success',
-                data: result
-                })
+                // Validate Data
+                 const validationResult = v.validate({email, password}, schema)
+
+                if(validationResult !== true){
+                res.status(401).json({
+                message: 'Validation Failed',
+                data: validationResult
+                    })
+                }else{
+                    const result = await User.create({fullName,email, password, address, phone, role})
+                    res.status(201).json({
+                    message: 'Success',
+                    data: result
+                    })
+                }      
             }
         }else{
-            const result2 = await User.create({fullName,email, password, address, phone, role})
+            // Validate Data
+            const validationResult = v.validate({email, password}, schema)
+
+            if(validationResult !== true){
+                res.status(401).json({
+                message: 'Validation Failed',
+                data: validationResult
+                 })
+            }else{
+                const result2 = await User.create({fullName,email, password, address, phone, role})
                 res.status(201).json({
                 message: 'Success',
                 data: result2
                 })
+            }
+                
         }
         
     } catch (error) {
@@ -124,34 +153,59 @@ exports.updateUser = async (req, res) => {
         const {id} = req.params
         const {fullName, email, password, address, phone, role} = req.body
         const checkUser = await User.findOne({where: {email}})
+        const schema = {
+            email: {type: "email", optional: false},
+            password: {type: "string", min: 5, max: 255, optional: false}
+        }
 
         if(checkUser){
+            // Validate Email
             if(checkUser.dataValues.email == email){
                 res.status(401).json({
                     message: 'Email is Alredy Exist',
                     data: {}
                 })
             }else{
-                const result = await User.update({fullName, email, password, address, phone, role},{
+                // Validate Data
+                const validationResult = v.validate({email, password}, schema)
+
+                if(validationResult !== true){
+                res.status(401).json({
+                message: 'Validation Failed',
+                data: validationResult
+                    })
+                }else{
+                    const result = await User.update({fullName, email, password, address, phone, role},{
+                        where : {
+                            id
+                        }
+                    })
+                    res.status(200).json({
+                        message: 'Success',
+                        data: result
+                    })
+                }     
+            }
+        }else{
+            // Validate Data
+            const validationResult = v.validate({email, password}, schema)
+
+            if(validationResult !== true){
+            res.status(401).json({
+            message: 'Validation Failed',
+            data: validationResult
+                })
+            }else{
+                const result2 = await User.update({fullName, email, password, address, phone, role},{
                     where : {
                         id
                     }
                 })
                 res.status(200).json({
                     message: 'Success',
-                    data: result
+                    data: result2
                 })
-            }
-        }else{
-            const result2 = await User.update({fullName, email, password, address, phone, role},{
-                where : {
-                    id
-                }
-            })
-            res.status(200).json({
-                message: 'Success',
-                data: result2
-            })
+            }     
         }
 
         
