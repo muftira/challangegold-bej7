@@ -1,0 +1,9 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "masukaja",
+    "database": "bingle_shop",
+    "host": "localhost",
+    "dialect": "postgres"
+  }
+}
