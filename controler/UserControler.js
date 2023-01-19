@@ -1,4 +1,4 @@
-const { User, Order, Cart, Item } = require('../models')
+const { User, Order, Cart, Item, sequelize } = require('../models')
 const Validator = require('fastest-validator')
 const v = new Validator()
 
@@ -16,15 +16,28 @@ exports.getUser = async (req, res) => {
             }
         ]
         })
+
+
+        // const result = await User.findAll({
+        //     attributes: [[sequelize.fn("COUNT", sequelize.col("Items.id")), "total"]],
+        //     raw:true,
+        //     group: "Items.id",
+        //     include: [{
+        //         model: Item
+        //     }]
+        // })
+        
         res.status(200).json({
             message: 'Success',
             data: result
         })
     } catch (error) {
+        console.log("RESULT =>", error);
         res.json({
             message: 'User Data Failed',
             data: error
         })
+        
     }
 }
 
@@ -69,7 +82,7 @@ exports.addUser = async (req, res) => {
             // validate Email
             if(checkUser.dataValues.email == email){
                     res.status(401).json({
-                    message: 'Email is Alredy Exist',
+                    message: 'Email Already Exist',
                     data: {}
                 })
             }else{
@@ -162,7 +175,7 @@ exports.updateUser = async (req, res) => {
             // Validate Email
             if(checkUser.dataValues.email == email){
                 res.status(401).json({
-                    message: 'Email is Alredy Exist',
+                    message: 'Email Already Exist',
                     data: {}
                 })
             }else{

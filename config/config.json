@@ -4,6 +4,7 @@
     "password": "masukaja",
     "database": "bingle_shop",
     "host": "localhost",
-    "dialect": "postgres"
+    "dialect": "postgres",
+    "port": "5432"
   }
 }
