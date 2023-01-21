@@ -1,6 +1,12 @@
 const { User, Order, Cart, Item, sequelize } = require('../models')
 const Validator = require('fastest-validator')
 const v = new Validator()
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const dotenv = require('dotenv')
+dotenv.config({path: '.env'})
+
+const JWT_SECRET = process.env.JWT_SECRET
 
 exports.getUser = async (req, res) => {
     try {
@@ -76,6 +82,8 @@ exports.addUser = async (req, res) => {
             email: {type: "email", optional: false},
             password: {type: "string", min: 5, max: 255, optional: false}
         }
+        const salt = bcrypt.genSaltSync(10);
+        const hash = bcrypt.hashSync(password, salt);
         
 
         if(checkUser){
@@ -95,7 +103,7 @@ exports.addUser = async (req, res) => {
                 data: validationResult
                     })
                 }else{
-                    const result = await User.create({fullName,email, password, address, phone, role})
+                    const result = await User.create({fullName,email, password: hash, address, phone, role})
                     res.status(201).json({
                     message: 'Success',
                     data: result
@@ -112,7 +120,7 @@ exports.addUser = async (req, res) => {
                 data: validationResult
                  })
             }else{
-                const result2 = await User.create({fullName,email, password, address, phone, role})
+                const result2 = await User.create({fullName, email, password: hash, address, phone, role})
                 res.status(201).json({
                 message: 'Success',
                 data: result2
@@ -135,9 +143,12 @@ exports.loginUser = async (req, res) => {
         const checkUser = await User.findOne({where: {email}})
 
         if(checkUser) {
-            if(checkUser.dataValues.password == password){
+           const checkPassword = bcrypt.compareSync(password, checkUser.dataValues.password);
+            if(checkPassword){
+                var _token = jwt.sign({email, id: checkUser.dataValues.id}, JWT_SECRET, { expiresIn: '24h' });
                 res.status(200).json({
                     message: 'Login success',
+                    token: _token,
                     data: checkUser
                 }) 
             }else{
@@ -165,10 +176,10 @@ exports.updateUser = async (req, res) => {
     try {
         const {id} = req.params
         const {fullName, email, password, address, phone, role} = req.body
-        const checkUser = await User.findOne({where: {email}})
+        const checkUser = await User.findOne({where: {id}})
         const schema = {
-            email: {type: "email", optional: false},
-            password: {type: "string", min: 5, max: 255, optional: false}
+            email: {type: "email", optional: true},
+            password: {type: "string", min: 5, max: 255, optional: true}
         }
 
         if(checkUser){
