@@ -5,4 +5,4 @@ const port = process.env.PORT
 
 
 //connect to server
-app.listen(port, () => console.log("Server Connected"));
+app.listen(port, () => console.log(`Server Connected on Port ${port}`));
