@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-// const {getItem,getItembyId,addItem,updateItem,deleteItem} = require('../controler/ItemControler')
 const {ItemController }= require('../controler/ItemControler')
 const itemController = new ItemController()
 const midleware = require("../midlewares/authentication")
