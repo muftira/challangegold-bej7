@@ -15,8 +15,8 @@ app.use('/v1',ItemRoute)
 app.use('/v1',CartRoute)
 app.use('/v1',OrderRoute)
 
+// error handling
 app.use((err, req, res, next) => {
-    console.log(err)
 
     const status = err.status || 500
     const error = err.error || 'Internal server error'
