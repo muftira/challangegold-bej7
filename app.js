@@ -10,10 +10,25 @@ app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 //import routes
-app.use(UserRoute)
-app.use(ItemRoute)
-app.use(CartRoute)
-app.use(OrderRoute)
+app.use('/v1',UserRoute)
+app.use('/v1',ItemRoute)
+app.use('/v1',CartRoute)
+app.use('/v1',OrderRoute)
+
+app.use((err, req, res, next) => {
+    console.log(err)
+
+    const status = err.status || 500
+    const error = err.error || 'Internal server error'
+    const message =  err.message 
+
+    return res.status(status).json({
+        status: false,
+        message: message,
+        data: {},
+        error: error
+    })
+})
 
 
 module.exports = app

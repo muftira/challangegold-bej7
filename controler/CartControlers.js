@@ -1,8 +1,9 @@
 const {Cart, Cart_item, Item, User, sequelize} = require('../models')
 const { Op, fn } = require("sequelize");
+const SuccessResponse = require('../helpers/Success.helper')
 
 class CartController {
-    async getCart(req, res){
+    async getCart(req, res, next){
         try {
             const result = await Cart.findAll({
                 where: {statusCart: false},
@@ -17,40 +18,45 @@ class CartController {
                     
                 }]
             })
+
+            return new SuccessResponse(res, 200, result, 'Success')
     
-            res.status(200).json({
-                message: 'Success',
-                data: result
-            })
+            // res.status(200).json({
+            //     message: 'Success',
+            //     data: result
+            // })
     
         } catch (error) {
-            res.json({
-                message: 'Cart Data Failed',
-                data: error
-            })
+            // res.json({
+            //     message: 'Cart Data Failed',
+            //     data: error
+            // })
+            next(error)
         }
     }
     
-    async getCartbyId(req, res){
+    async getCartbyId(req, res, next){
         try {
             const {id} = req.params
             const result = await Cart.findOne({
                 where: {[Op.and]: [{id}, {statusCart: false}]
                 }
                 })
-            res.status(200).json({
-                message: 'Success',
-                data: result
-            })
+            // res.status(200).json({
+            //     message: 'Success',
+            //     data: result
+            // })
+            return new SuccessResponse(res, 200, result, 'Success')
         } catch (error) {
-            res.json({
-                message: 'Cart Data Failed',
-                data: error
-            })
+            // res.json({
+            //     message: 'Cart Data Failed',
+            //     data: error
+            // })
+            next(error)
         }
     }
     
-    async getCart_item(req, res){
+    async getCart_item(req, res, next){
         try {
             const result = await Cart_item.findAll({
                 attributes: ['id', 'itemId', "quantity", 'cartId', "createdAt", "updatedAt"],
@@ -63,19 +69,21 @@ class CartController {
                     }
                 ]
         })
-            res.status(200).json({
-                message: 'Success',
-                data: result
-            })
+            // res.status(200).json({
+            //     message: 'Success',
+            //     data: result
+            // })
+            return new SuccessResponse(res, 200, result, 'Success')
         } catch (error) {
-            res.json({
-                message: 'Cart Data Failed',
-                data: error
-            })
+            // res.json({
+            //     message: 'Cart Data Failed',
+            //     data: error
+            // })
+            next(error)
         }
     }
     
-    async getCart_itembyId(req, res){
+    async getCart_itembyId(req, res, next){
         try {
             const {id} = req.params
             const result = await Cart_item.findOne({where: {id}, 
@@ -88,40 +96,44 @@ class CartController {
                     model: Cart
                 }
             ]})
-            res.status(200).json({
-                message: 'Success',
-                data: result
-            })
+            // res.status(200).json({
+            //     message: 'Success',
+            //     data: result
+            // })
+            return new SuccessResponse(res, 200, result, 'Success')
         } catch (error) {
-            res.json({
-                message: 'Cart Data Failed',
-                data: error
-            })
+            // res.json({
+            //     message: 'Cart Data Failed',
+            //     data: error
+            // })
+            next(error)
         }
     }
     
     // buat cart baru atau untuk pertama kali
-    async addCart(req, res){
+    async addCart(req, res, next){
         try {
             const {itemId, userId} = req.params
             const {quantity} = req.body
             const result1 = await Cart.create({userId})
             const result2 = await Cart_item.create({userId, itemId, cartId:result1.id, quantity})
-            res.status(201).json({
-                message: 'Success',
-                data: result1
-            })
+            // res.status(201).json({
+            //     message: 'Success',
+            //     data: result1
+            // })
+            return new SuccessResponse(res, 201, result1, 'Success')
         } catch (error) {
-            res.json({
-                message: 'Cart Data Failed',
-                data: error
-            })
+            // res.json({
+            //     message: 'Cart Data Failed',
+            //     data: error
+            // })
+            next(error)
         }
     }
     
     
     // buat cart dengan cartId sama atau keduakali dan seterusnya
-    async addCartbyId(req, res){
+    async addCartbyId(req, res, next){
         try {
 
             const {cartId, itemId} = req.params
@@ -135,20 +147,22 @@ class CartController {
     
             const result = await Cart_item.findOne({where: {[Op.and] : [{itemId}, {cartId}]}})
     
-            res.status(201).json({
-                message: 'Success',
-                data: result
-            })
+            // res.status(201).json({
+            //     message: 'Success',
+            //     data: result
+            // })
+            return new SuccessResponse(res, 201, result, 'Success')
         } catch (error) {
-            res.json({
-                message: 'Cart Data Failed',
-                data: error
-            })
+            // res.json({
+            //     message: 'Cart Data Failed',
+            //     data: error
+            // })
+            next(error)
         }
     }
     
     // update cart untuk input quantityTotal dan totalPrice property di cart tabel dari sisi frontend
-    async updateCartbyItem(req, res){
+    async updateCartbyItem(req, res, next){
         try {
             const {id} = req.params
             const {quantityTotal, totalPrice} = req.body
@@ -165,21 +179,23 @@ class CartController {
             
             // const _carts = await Cart.update({totalPrice: totalPrice}, {where: id})
 
-            res.status(200).json({
-                message: 'Success',
-                data: result
-            })
+            // res.status(200).json({
+            //     message: 'Success',
+            //     data: result
+            // })
+            return new SuccessResponse(res, 200, result, 'Success')
         } catch (error) {
-            res.json({
-                message: 'Cart Data Failed',
-                data: error
-            })
+            // res.json({
+            //     message: 'Cart Data Failed',
+            //     data: error
+            // })
+            next(error)
         }
     }
     
     
     // delete satu item di cart dan property quantity 
-    async deleteCartbyItem(req, res){
+    async deleteCartbyItem(req, res, next){
         try {
             const {cartId, itemId} = req.params
             const _item = await Cart_item.findOne({where: {[Op.and] : [{itemId}, {cartId}]}})
@@ -194,32 +210,36 @@ class CartController {
                 where: {[Op.and] : [{itemId}, {cartId}]}
             })
             
-            res.status(200).json({
-                message: 'Success',
-                data: result
-            })
+            // res.status(200).json({
+            //     message: 'Success',
+            //     data: result
+            // })
+            return new SuccessResponse(res, 200, result, 'Success')
         } catch (error) {
-            res.json({
-                message: 'Cart Data Failed',
-                data: error
-            })
+            // res.json({
+            //     message: 'Cart Data Failed',
+            //     data: error
+            // })
+            next(error)
         }
     }
     
     // delete cart atau semua item di cart
-    async deleteCartAllItem(req, res) {
+    async deleteCartAllItem(req, res, next) {
         try {
             const {id} = req.params
             const result = await Cart.destroy({where : {id}})
-            res.status(200).json({
-                message: 'Success',
-                data: result
-            })
+            // res.status(200).json({
+            //     message: 'Success',
+            //     data: result
+            // })
+            return new SuccessResponse(res, 200, result, 'Success')
         } catch (error) {
-            res.json({
-                message: 'Cart Data Failed',
-                data: error
-            })
+            // res.json({
+            //     message: 'Cart Data Failed',
+            //     data: error
+            // })
+            next(error)
         }
     }
 }
